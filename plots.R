@@ -138,7 +138,7 @@ tweet_map <- tweets %>%
   labs(title = "Twitter and the storm") +
   NULL
 
-N <- 100
+N <- 300
 
 series <- animate(series, nframes = N, duration = 30, width = 480, height = 340)
 
