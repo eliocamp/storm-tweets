@@ -19,18 +19,21 @@ tweets <- readRDS("data/tweets.Rds")
 aggregate <- "2 hours"
 N <- 300
 
-series <- tweets[] %>% 
+tw_series <- tweets[] %>% 
   .[, time := round_date(created_at, aggregate) - hours(3)] %>%
   # .[ time < round_date(now(), "1 hour")] %>% 
   .[, .(time, electric, pp, severe, impacts)] %>% 
   melt(id.vars = "time", variable.name = "type") %>% 
   .[, .(N = sum(value)/2), by = .(type, time)] %>% 
   .[, maxn := sum(N), by = .(type)] %>% 
-  .[, type := reorder(type, -maxn)] %>% 
+  .[, type := reorder(type, -maxn)] 
+
   # .[time %in% unique(time)[1:3]] %>%
-  ggplot(aes(time, N, color = type)) +
+series <- ggplot(tw_series, aes(time, N, color = type)) +
   # geom_vline(aes(xintercept = time, color = type), 
              # size = 0.3, alpha = 0.7) +
+  geom_line(aes(x = time2), color = "gray", alpha = 0.8, size = 0.3, 
+            data = tw_series[, .(N, type, time2 = time)]) +
   geom_line() +
   # geom_smooth(se = FALSE, method = "gam", formula = y ~ s(as.numeric(x))) +
   scale_color_brewer(palette = "Set1", guide = "none") +
