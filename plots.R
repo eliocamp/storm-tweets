@@ -112,21 +112,27 @@ series <- tweets[] %>%
   transition_reveal(type, time)
   
 tweet_map <- tweets %>% 
-  .[!is.na(lat)] %>% 
-  .[, .N, by = .(lng, lat, time = round_date(created_at, aggregate) - hours(3))] %>%
-  tidyr::complete(tidyr::nesting(lng, lat), time, fill = list(N = 0)) %>%
+  .[!is.na(lat)] %>%
+  .[, time := round_date(created_at, aggregate) - hours(3)] %>%
+  # .[ time < round_date(now(), "1 hour")] %>% 
+  .[, .(lng, lat, time, electric, pp, severe, impacts)] %>% 
+  melt(id.vars = c("lng", "lat", "time"), variable.name = "type") %>% 
+  .[, .(N = sum(value)), by = .(lng, lat, time, type)] %>%
+  tidyr::complete(tidyr::nesting(lng, lat, type), time, fill = list(N = 0)) %>%
   as.data.table() %>% 
+  .[, maxn := sum(N), by = .(type)] %>% 
+  .[, type := reorder(type, -maxn)] %>% 
   .[order(N), ] %>% 
   ggplot() +
   geom_sf(data = map) +
-  geom_point(aes(lng, lat, size = N, color = sqrt(N), group = interaction(lng, lat))) +
+  geom_jitter(aes(lng, lat, size = N, color = type, group = interaction(lng, lat))) +
   coord_sf(ylim = c(-35, -27), xlim = c(-70, -55),
            label_axes = "----") + 
   scale_size_area(guide = "none", max_size = 8) +
   scale_x_continuous("") +
   scale_y_continuous("") +
-  scale_color_viridis_c(guide = "none") +
-  # scale_color_distiller(palette = "YlOrRd", direction = 1, guide = "none") +
+  # scale_color_viridis_c(guide = "none") +
+  scale_color_brewer(palette = "Set1", guide = "none") +
   theme(axis.ticks = element_blank()) +
   transition_time(time) +
   labs(title = "Twitter and the storm") +
