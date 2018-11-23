@@ -16,7 +16,7 @@ type_lab <- c(electric = "Actividad eléctrica",
               impacts = "Inundación")
 
 tweets <- readRDS("data/tweets.Rds")
-aggregate <- "30 minutes"
+aggregate <- "5 minutes"
 N <- 300
 
 tw_series <- tweets[] %>% 
@@ -24,11 +24,11 @@ tw_series <- tweets[] %>%
   # .[ time < round_date(now(), "1 hour")] %>% 
   .[, .(time, electric, pp, severe, impacts)] %>% 
   melt(id.vars = "time", variable.name = "type") %>% 
-  .[, .(N = sum(value)*2), by = .(type, time)] %>% 
+  .[, .(N = sum(value)*60/5), by = .(type, time)] %>% 
   .[, maxn := sum(N), by = .(type)] %>% 
   .[, type := reorder(type, -maxn)]  %>% 
   .[time != max(time)] %>% 
-  .[day(time) >= 21]
+  .[day(time) >= 22]
 
 ggplot(tw_series, aes(time, N, color = type)) +
   # geom_vline(aes(xintercept = time, color = type), 
