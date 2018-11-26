@@ -42,6 +42,8 @@ max_id <- max(tw_old$status_id)
 
 tw <- tw[as.numeric(status_id) > as.numeric(max_id)]
 
+message("Found ", nrow(tw), " new tweets")
+
 tw[, names(keywords) := lapply(keywords, function(k) detect(tolower(text), k))]
 tw[, irrelevant := detect(tolower(text), removes)]
 

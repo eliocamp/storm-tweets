@@ -16,15 +16,19 @@ type_lab <- c(electric = "Electric activity",
               impacts = "Flooding")
 
 tweets <- readRDS("data/tweets.Rds")
-aggregate <- "2 hours"
+aggregate_min <- 1
+aggregate <- paste0(aggregate_min, "minutes")
+duration <- 30
 N <- 300
+
+# tweets <- tweets[day(created_at) > 21 & day(created_at) < 23]
 
 tw_series <- tweets[] %>% 
   .[, time := round_date(created_at, aggregate) - hours(3)] %>%
   # .[ time < round_date(now(), "1 hour")] %>% 
   .[, .(time, electric, pp, severe, impacts)] %>% 
   melt(id.vars = "time", variable.name = "type") %>% 
-  .[, .(N = sum(value)/2), by = .(type, time)] %>% 
+  .[, .(N = sum(value)*60/aggregate_min), by = .(type, time)] %>% 
   .[, maxn := sum(N), by = .(type)] %>% 
   .[, type := reorder(type, -maxn)] 
 
@@ -47,7 +51,7 @@ series <- ggplot(tw_series, aes(time, N, color = type)) +
   theme(plot.margin = unit(rep(1, 4), "lines"), 
         panel.spacing = unit(0.5, "lines"))
 
-series <- animate(series, nframes = N, duration = 30, width = 480, height = 340)
+series <- animate(series, nframes = N, duration = duration, width = 480, height = 340)
 
 tweet_map <- tweets %>% 
   .[!is.na(lat)] %>%
@@ -55,7 +59,7 @@ tweet_map <- tweets %>%
   # .[ time < round_date(now(), "1 hour")] %>% 
   .[, .(lng, lat, time, electric, pp, severe, impacts)] %>% 
   melt(id.vars = c("lng", "lat", "time"), variable.name = "type") %>% 
-  .[, .(N = sum(value/2)), by = .(lng, lat, time, type)] %>%
+  .[, .(N = sum(value)*60/aggregate_min), by = .(lng, lat, time, type)] %>%
   tidyr::complete(tidyr::nesting(lng, lat, type), time, fill = list(N = 0)) %>%
   as.data.table() %>% 
   .[, maxn := sum(N), by = .(type)] %>% 
@@ -78,7 +82,7 @@ tweet_map <- tweets %>%
   labs(title = "Twitter and the storm") +
   NULL
 
-tweet_map <- animate(tweet_map, nframes = N, duration = 30, width = 480, height = 340)
+tweet_map <- animate(tweet_map, nframes = N, duration = duration, width = 480, height = 340)
 
 a_mgif <- image_read(tweet_map)
 b_mgif <- image_read(series)
