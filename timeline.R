@@ -16,7 +16,8 @@ type_lab <- c(electric = "Actividad eléctrica",
               impacts = "Inundación")
 
 tweets <- readRDS("data/tweets.Rds")
-aggregate <- "5 minutes"
+aggregate_min <- 30
+aggregate <- paste0(aggregate_min, "minutes")
 N <- 300
 
 tw_series <- tweets[] %>% 
@@ -24,7 +25,7 @@ tw_series <- tweets[] %>%
   # .[ time < round_date(now(), "1 hour")] %>% 
   .[, .(time, electric, pp, severe, impacts)] %>% 
   melt(id.vars = "time", variable.name = "type") %>% 
-  .[, .(N = sum(value)*60/5), by = .(type, time)] %>% 
+  .[, .(N = sum(value)*60/aggregate_min), by = .(type, time)] %>% 
   .[, maxn := sum(N), by = .(type)] %>% 
   .[, type := reorder(type, -maxn)]  %>% 
   .[time != max(time)] %>% 

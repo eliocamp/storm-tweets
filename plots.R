@@ -28,10 +28,10 @@ tw_series <- tweets[] %>%
   .[, maxn := sum(N), by = .(type)] %>% 
   .[, type := reorder(type, -maxn)] 
 
-  # .[time %in% unique(time)[1:3]] %>%
+# .[time %in% unique(time)[1:3]] %>%
 series <- ggplot(tw_series, aes(time, N, color = type)) +
   # geom_vline(aes(xintercept = time, color = type), 
-             # size = 0.3, alpha = 0.7) +
+  # size = 0.3, alpha = 0.7) +
   geom_line(aes(x = time2), color = "gray", alpha = 0.8, size = 0.3, 
             data = tw_series[, .(N, type, time2 = time)]) +
   geom_line() +
@@ -89,3 +89,6 @@ for(i in 2:N){
   new_gif <- c(new_gif, combined)
 }
 save_animation(new_gif, "map-time.gif")
+
+system("rm video.mp4")
+system('ffmpeg -i map-time.gif -movflags faststart -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" video.mp4')
