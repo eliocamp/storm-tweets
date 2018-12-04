@@ -16,6 +16,7 @@ type_lab <- c(electric = "Electric activity",
               impacts = "Flooding")
 
 tweets <- readRDS("data/tweets.Rds")
+tweets <- tweets[created_at > "2018-11-22"]
 aggregate_min <- 1
 aggregate <- paste0(aggregate_min, "minutes")
 duration <- 30
