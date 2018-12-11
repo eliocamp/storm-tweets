@@ -42,7 +42,10 @@ series <- ggplot(tw_series, aes(time, N, color = type)) +
   geom_line() +
   # geom_smooth(se = FALSE, method = "gam", formula = y ~ s(as.numeric(x))) +
   scale_color_brewer(palette = "Set1", guide = "none") +
-  scale_x_datetime("Day\n(November)", date_breaks = "24 hours", 
+  scale_x_datetime(paste0("Día\n(", 
+                          as.character(month(now(), label = TRUE, abbr = FALSE)), 
+                          ")"),
+                   date_breaks = "24 hours", 
                    date_labels = "%d", 
                    expand = c(0, 0)) +
   scale_y_continuous("Hourly tweets \n(no RT)", 

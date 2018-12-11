@@ -38,7 +38,9 @@ ggplot(tw_series, aes(time, N, color = type)) +
   geom_line() +
   # geom_smooth(se = FALSE, method = "gam", formula = y ~ s(as.numeric(x))) +
   scale_color_brewer(palette = "Set1", guide = "none") +
-  scale_x_datetime("Día\n(Noviembre)", date_breaks = "24 hours", 
+  scale_x_datetime(paste0("Día\n(", 
+                          as.character(month(now(), label = TRUE, abbr = FALSE)), 
+                          ")"), date_breaks = "24 hours", 
                    date_labels = "%d", 
                    expand = c(0, 0)) +
   scale_y_continuous("Tweets por hora \n (sin RT)", 
@@ -47,3 +49,5 @@ ggplot(tw_series, aes(time, N, color = type)) +
   # transition_reveal(type, time) +
   theme(plot.margin = unit(rep(1, 4), "lines"), 
         panel.spacing = unit(0.5, "lines"))
+
+ggsave("timeline.png", height = 300/72, width = 500/72)
