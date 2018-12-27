@@ -8,8 +8,6 @@ library(magrittr)
 library(hrbrthemes)
 theme_set(theme_ipsum_rc())
 
-map <- rnaturalearth::ne_states("Argentina", returnclass = "sf")
-
 type_lab <- c(electric = "Actividad eléctrica", 
               pp = "Lluvia", 
               severe = "Eventos severos",
